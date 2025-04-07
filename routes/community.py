@@ -1,30 +1,24 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-from models import Post, Comment, User, Recipe, next_post_id, next_comment_id
+from models import Post, Comment, User, Recipe
+from app import db
 
 community_bp = Blueprint('community', __name__, url_prefix='/community')
 
 @community_bp.route('/')
 def index():
     """社区主页，显示所有帖子"""
-    posts = Post.query().all()
+    # 查询所有帖子，按创建时间排序，最新的在前面
+    posts = Post.query.order_by(Post.created_at.desc()).all()
     
-    # 按创建时间排序，最新的在前面
-    posts.sort(key=lambda x: x.created_at, reverse=True)
-    
-    # 为每个帖子获取用户信息和相关食谱
+    # 为每个帖子准备信息
     posts_with_info = []
     for post in posts:
-        user = User.query().get(post.user_id)
-        recipe = None
-        if post.recipe_id:
-            recipe = Recipe.query().get(post.recipe_id)
-        
         posts_with_info.append({
             'post': post,
-            'user': user,
-            'recipe': recipe,
-            'comments_count': len(post.comments)
+            'user': post.author,
+            'recipe': post.recipe,
+            'comments_count': post.comments.count()
         })
     
     return render_template('community/posts.html', posts=posts_with_info)
@@ -32,36 +26,24 @@ def index():
 @community_bp.route('/post/<int:post_id>')
 def post_detail(post_id):
     """帖子详情页"""
-    post = Post.query().get(post_id)
+    post = Post.query.get(post_id)
     
     if not post:
         flash('帖子不存在', 'danger')
         return redirect(url_for('community.index'))
     
-    # 获取帖子作者
-    user = User.query().get(post.user_id)
-    
-    # 获取相关菜谱
-    recipe = None
-    if post.recipe_id:
-        recipe = Recipe.query().get(post.recipe_id)
-    
     # 获取评论及对应的用户
     comments_with_user = []
-    for comment in post.comments:
-        comment_user = User.query().get(comment.user_id)
+    for comment in post.comments.order_by(Comment.created_at).all():
         comments_with_user.append({
             'comment': comment,
-            'user': comment_user
+            'user': comment.author
         })
-    
-    # 按时间排序评论
-    comments_with_user.sort(key=lambda x: x['comment'].created_at)
     
     return render_template('community/post_detail.html',
                           post=post,
-                          user=user,
-                          recipe=recipe,
+                          user=post.author,
+                          recipe=post.recipe,
                           comments=comments_with_user)
 
 @community_bp.route('/post/new', methods=['GET', 'POST'])
@@ -80,15 +62,13 @@ def new_post():
         
         # 验证菜谱是否存在
         if recipe_id:
-            recipe = Recipe.query().get(recipe_id)
+            recipe = Recipe.query.get(recipe_id)
             if not recipe:
                 flash('所选菜谱不存在', 'danger')
                 return redirect(url_for('community.new_post'))
         
         # 创建新帖子
-        global next_post_id
         new_post = Post(
-            id=next_post_id,
             user_id=current_user.id,
             title=title,
             content=content,
@@ -96,22 +76,17 @@ def new_post():
         )
         
         # 添加到数据库
-        from models import posts_db
-        posts_db.append(new_post)
-        next_post_id += 1
+        db.session.add(new_post)
+        db.session.commit()
         
         flash('帖子发布成功', 'success')
         return redirect(url_for('community.post_detail', post_id=new_post.id))
     
     # 获取用户收藏的菜谱作为可选项
-    favorite_recipes = []
-    for recipe_id in current_user.favorites:
-        recipe = Recipe.query().get(recipe_id)
-        if recipe:
-            favorite_recipes.append(recipe)
+    favorite_recipes = current_user.favorites
     
     # 获取所有菜谱
-    all_recipes = Recipe.query().all()
+    all_recipes = Recipe.query.all()
     
     return render_template('community/new_post.html',
                           favorite_recipes=favorite_recipes,
@@ -121,7 +96,7 @@ def new_post():
 @login_required
 def add_comment(post_id):
     """添加评论"""
-    post = Post.query().get(post_id)
+    post = Post.query.get(post_id)
     
     if not post:
         flash('帖子不存在', 'danger')
@@ -134,17 +109,15 @@ def add_comment(post_id):
         return redirect(url_for('community.post_detail', post_id=post_id))
     
     # 创建新评论
-    global next_comment_id
     new_comment = Comment(
-        id=next_comment_id,
         post_id=post_id,
         user_id=current_user.id,
         content=content
     )
     
-    # 添加到帖子的评论列表
-    post.comments.append(new_comment)
-    next_comment_id += 1
+    # 添加到数据库
+    db.session.add(new_comment)
+    db.session.commit()
     
     flash('评论发布成功', 'success')
     return redirect(url_for('community.post_detail', post_id=post_id))
@@ -153,7 +126,7 @@ def add_comment(post_id):
 @login_required
 def like_post(post_id):
     """点赞帖子"""
-    post = Post.query().get(post_id)
+    post = Post.query.get(post_id)
     
     if not post:
         flash('帖子不存在', 'danger')
@@ -161,6 +134,7 @@ def like_post(post_id):
     
     # 增加点赞数
     post.likes += 1
+    db.session.commit()
     
     flash('点赞成功', 'success')
     return redirect(url_for('community.post_detail', post_id=post_id))

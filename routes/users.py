@@ -1,6 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-from models import Recipe, User
+from models import Recipe, User, Post, Category, RecipeRating, UserFavorite
+from app import db
+import json
+from werkzeug.security import check_password_hash, generate_password_hash
+from services import user_service
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -9,26 +13,13 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 def profile():
     """用户个人资料页面"""
     # 获取用户收藏的菜谱
-    favorite_recipes = []
-    for recipe_id in current_user.favorites:
-        recipe = Recipe.query().get(recipe_id)
-        if recipe:
-            favorite_recipes.append(recipe)
+    favorite_recipes = user_service.get_user_favorite_recipes(current_user.id)
     
     # 获取用户评分的菜谱
-    rated_recipes = []
-    for recipe_id, rating in current_user.ratings.items():
-        recipe = Recipe.query().get(recipe_id)
-        if recipe:
-            recipe_with_rating = {
-                'recipe': recipe,
-                'user_rating': rating
-            }
-            rated_recipes.append(recipe_with_rating)
+    rated_recipes = user_service.get_user_rated_recipes(current_user.id)
     
     # 获取用户的社区帖子
-    from models import Post
-    user_posts = Post.query().filter_by(user_id=current_user.id).all()
+    user_posts = Post.query.filter_by(user_id=current_user.id).all()
     
     # 获取个性化推荐
     from services.recommendation_service import get_personalized_recommendations
@@ -56,13 +47,13 @@ def edit_profile():
             return redirect(url_for('users.edit_profile'))
         
         # 检查用户名是否已被其他用户使用
-        user_with_same_name = User.query().filter_by(username=username).first()
+        user_with_same_name = User.query.filter_by(username=username).first()
         if user_with_same_name and user_with_same_name.id != current_user.id:
             flash('该用户名已被使用', 'danger')
             return redirect(url_for('users.edit_profile'))
         
         # 检查邮箱是否已被其他用户使用
-        user_with_same_email = User.query().filter_by(email=email).first()
+        user_with_same_email = User.query.filter_by(email=email).first()
         if user_with_same_email and user_with_same_email.id != current_user.id:
             flash('该邮箱已被使用', 'danger')
             return redirect(url_for('users.edit_profile'))
@@ -70,29 +61,38 @@ def edit_profile():
         # 更新用户信息
         current_user.username = username
         current_user.email = email
-        current_user.preferences = preferences
+        
+        # 将偏好转换为JSON字符串
+        current_user.preferences = json.dumps(preferences)
+        
+        # 保存更改
+        db.session.commit()
         
         flash('个人资料已更新', 'success')
         return redirect(url_for('users.profile'))
     
     # 获取所有菜谱分类作为口味偏好选项
-    from models import Category
-    categories = Category.query().all()
+    categories = Category.query.all()
+    
+    # 解析当前用户偏好
+    user_preferences = []
+    if current_user.preferences:
+        try:
+            user_preferences = json.loads(current_user.preferences)
+        except json.JSONDecodeError:
+            user_preferences = []
     
     return render_template('user/profile_edit.html', 
                           user=current_user,
-                          categories=categories)
+                          categories=categories,
+                          user_preferences=user_preferences)
 
 @users_bp.route('/favorites')
 @login_required
 def favorites():
     """用户收藏的菜谱"""
     # 获取用户收藏的菜谱
-    favorite_recipes = []
-    for recipe_id in current_user.favorites:
-        recipe = Recipe.query().get(recipe_id)
-        if recipe:
-            favorite_recipes.append(recipe)
+    favorite_recipes = user_service.get_user_favorite_recipes(current_user.id)
     
     return render_template('user/favorites.html',
                           favorite_recipes=favorite_recipes)
@@ -107,8 +107,7 @@ def change_password():
         confirm_password = request.form.get('confirm_password')
         
         # 验证当前密码
-        from werkzeug.security import check_password_hash, generate_password_hash
-        if not check_password_hash(current_user.password, current_password):
+        if not check_password_hash(current_user.password_hash, current_password):
             flash('当前密码不正确', 'danger')
             return redirect(url_for('users.change_password'))
         
@@ -123,7 +122,8 @@ def change_password():
             return redirect(url_for('users.change_password'))
         
         # 更新密码
-        current_user.password = generate_password_hash(new_password)
+        current_user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
         
         flash('密码已更新', 'success')
         return redirect(url_for('users.profile'))

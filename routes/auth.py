@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash, generate_password_hash
-from models import User, next_user_id
+from werkzeug.security import check_password_hash
+from models import User
+from app import db
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -16,10 +17,11 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
         
-        user = User.query().filter_by(username=username).first()
+        # 查询用户
+        user = User.query.filter_by(username=username).first()
         
-        # 检查用户是否存在
-        if not user or not check_password_hash(user.password, password):
+        # 检查用户是否存在及密码是否正确
+        if not user or not user.check_password(password):
             flash('用户名或密码错误，请重试！', 'danger')
             return render_template('auth/login.html')
             
@@ -58,29 +60,22 @@ def register():
             return render_template('auth/register.html')
             
         # 检查用户名是否已存在
-        if User.query().filter_by(username=username).first():
+        if User.query.filter_by(username=username).first():
             flash('该用户名已被注册', 'danger')
             return render_template('auth/register.html')
             
         # 检查邮箱是否已存在
-        if User.query().filter_by(email=email).first():
+        if User.query.filter_by(email=email).first():
             flash('该邮箱已被注册', 'danger')
             return render_template('auth/register.html')
             
         # 创建新用户
-        global next_user_id
-        new_user = User(
-            id=next_user_id,
-            username=username,
-            email=email,
-            password=generate_password_hash(password),
-            is_admin=False
-        )
+        new_user = User(username=username, email=email)
+        new_user.set_password(password)
         
         # 将用户添加到数据库
-        from models import users_db
-        users_db.append(new_user)
-        next_user_id += 1
+        db.session.add(new_user)
+        db.session.commit()
         
         flash('注册成功！请登录', 'success')
         return redirect(url_for('auth.login'))
