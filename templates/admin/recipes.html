@@ -142,7 +142,7 @@
                             <div class="card-body">
                                 <h6 class="card-title d-flex justify-content-between align-items-center">
                                     {{ category.name }}
-                                    <span class="badge bg-primary">{{ recipes|selectattr('category.id', 'equalto', category.id)|list|length }} 个菜谱</span>
+                                    <span class="badge bg-primary">{{ recipes|selectattr('category.id', 'equalto', category.id)|list|count }} 个菜谱</span>
                                 </h6>
                                 <p class="card-text small text-muted">{{ category.description }}</p>
                                 <a href="{{ url_for('recipes.category', category_id=category.id) }}" class="btn btn-sm btn-outline-primary">

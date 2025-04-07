@@ -140,11 +140,11 @@
                                 <h6 class="card-title">用户类型分布</h6>
                                 <div class="d-flex justify-content-center py-2">
                                     <div class="px-3 text-center">
-                                        <h4 class="mb-0">{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</h4>
+                                        <h4 class="mb-0">{{ users|selectattr('is_admin', 'equalto', true)|list|count }}</h4>
                                         <span class="small text-muted">管理员</span>
                                     </div>
                                     <div class="px-3 text-center">
-                                        <h4 class="mb-0">{{ users|selectattr('is_admin', 'equalto', false)|list|length }}</h4>
+                                        <h4 class="mb-0">{{ users|selectattr('is_admin', 'equalto', false)|list|count }}</h4>
                                         <span class="small text-muted">普通用户</span>
                                     </div>
                                 </div>
