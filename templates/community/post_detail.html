@@ -63,7 +63,7 @@
         <!-- 评论区 -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>评论 ({{ comments|length }})</h5>
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>评论 ({{ comments|count }})</h5>
             </div>
             <div class="card-body">
                 {% if comments %}
@@ -144,7 +144,7 @@
                 <h5 class="card-title text-center">{{ recipe.name }}</h5>
                 <p class="small text-muted text-center">
                     <i class="fas fa-star text-warning"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
-                    ({{ recipe.ratings|length }} 评价)
+                    ({{ recipe.ratings.count() }} 评价)
                 </p>
                 <div class="d-grid">
                     <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-primary">

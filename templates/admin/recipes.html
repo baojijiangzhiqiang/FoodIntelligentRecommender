@@ -72,7 +72,7 @@
                                     <span class="text-warning">
                                         <i class="fas fa-star"></i> {{ "%.1f"|format(item.recipe.get_avg_rating()) }}
                                     </span>
-                                    <small class="text-muted">({{ item.recipe.ratings|length }})</small>
+                                    <small class="text-muted">({{ item.recipe.ratings.count() }})</small>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">

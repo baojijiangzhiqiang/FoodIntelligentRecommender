@@ -159,7 +159,7 @@
                                     {% for user in users|sort(attribute='favorites|length', reverse=true)[:3] %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         {{ user.username }}
-                                        <span class="badge bg-primary rounded-pill">{{ user.favorites|length }} 收藏</span>
+                                        <span class="badge bg-primary rounded-pill">{{ user.favorites|count }} 收藏</span>
                                     </li>
                                     {% endfor %}
                                 </ul>

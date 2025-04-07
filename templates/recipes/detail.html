@@ -14,7 +14,7 @@
                         <span class="badge bg-primary">{{ recipe.difficulty }}</span>
                         <span class="badge bg-warning text-dark">
                             <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
-                            ({{ recipe.ratings|length }}评价)
+                            ({{ recipe.ratings.count() }}评价)
                         </span>
                     </div>
                     <h1 class="text-white recipe-title">{{ recipe.name }}</h1>
@@ -108,7 +108,7 @@
                         <a href="{{ url_for('community.post_detail', post_id=post.id) }}" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ post.title }}</h5>
-                                <small>{{ post.comments|length }}条评论</small>
+                                <small>{{ post.comments.count() }}条评论</small>
                             </div>
                             <p class="mb-1 text-truncate">{{ post.content }}</p>
                         </a>

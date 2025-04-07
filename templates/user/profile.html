@@ -244,7 +244,7 @@
                         <p class="mb-1 text-truncate">{{ post.content }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                {{ post.comments|length }}条评论 · {{ post.likes }}个赞
+                                {{ post.comments.count() }}条评论 · {{ post.likes }}个赞
                             </small>
                             {% if post.recipe_id %}
                             <span class="badge bg-primary">已关联菜谱</span>

@@ -128,7 +128,7 @@
                                     <span class="text-warning">
                                         <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
                                     </span>
-                                    <small class="text-muted">({{ recipe.ratings|length }})</small>
+                                    <small class="text-muted">({{ recipe.ratings.count() }})</small>
                                 </td>
                                 <td>
                                     <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
