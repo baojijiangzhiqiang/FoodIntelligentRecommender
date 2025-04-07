@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}注册 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>新用户注册</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('auth.register') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-text">用户名将显示在您发布的内容中</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">电子邮箱</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                        </div>
+                        <div class="form-text">密码长度不少于6个字符</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">确认密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm" required minlength="6">
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">注册</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">已有账号? <a href="{{ url_for('auth.login') }}">立即登录</a></p>
+            </div>
+        </div>
+        
+        <!-- 注册说明 -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">加入我们的美食社区</h5>
+                <p>注册成为会员后，您将获得：</p>
+                <ul>
+                    <li>个性化的菜谱推荐</li>
+                    <li>可以收藏喜爱的菜谱，方便日后查找</li>
+                    <li>可以对菜谱进行评分，分享您的烹饪体验</li>
+                    <li>可以参与社区讨论，与其他美食爱好者交流</li>
+                    <li>可以根据自己的口味偏好定制内容</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

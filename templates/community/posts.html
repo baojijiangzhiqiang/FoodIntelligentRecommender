@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}社区 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 社区横幅 -->
+    <div class="col-12 mb-4">
+        <div class="card bg-dark text-white community-banner">
+            <div class="card-body text-center py-5">
+                <h1 class="display-5 mb-3">美食社区</h1>
+                <p class="lead">分享烹饪经验、交流美食心得、探讨菜谱改进，与其他美食爱好者一起交流</p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('community.new_post') }}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-plus me-1"></i>发布新帖子
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-sign-in-alt me-1"></i>登录发布
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帖子列表 -->
+    <div class="col-md-9">
+        {% if posts %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>社区帖子</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for post_info in posts %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <a href="{{ url_for('community.post_detail', post_id=post_info.post.id) }}" class="post-title">
+                            <h5 class="mb-1">{{ post_info.post.title }}</h5>
+                        </a>
+                        <small class="text-muted">{{ post_info.post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mb-2 text-truncate">{{ post_info.post.content }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle-sm me-2">
+                                <span class="initials-sm">{{ post_info.user.username[0] }}</span>
+                            </div>
+                            <span>{{ post_info.user.username }}</span>
+                        </div>
+                        <div>
+                            {% if post_info.recipe %}
+                            <a href="{{ url_for('recipes.detail', recipe_id=post_info.recipe.id) }}" class="badge bg-info text-decoration-none me-2">
+                                <i class="fas fa-utensils me-1"></i>{{ post_info.recipe.name }}
+                            </a>
+                            {% endif %}
+                            <span class="badge bg-secondary me-1">
+                                <i class="fas fa-comment me-1"></i>{{ post_info.comments_count }}
+                            </span>
+                            <span class="badge bg-danger">
+                                <i class="fas fa-heart me-1"></i>{{ post_info.post.likes }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                <h4>暂无社区帖子</h4>
+                <p class="text-muted">成为第一个分享美食经验的人吧！</p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('community.new_post') }}" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus me-1"></i>发布新帖子
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary mt-2">
+                    <i class="fas fa-sign-in-alt me-1"></i>登录发布
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- 侧边栏 -->
+    <div class="col-md-3">
+        <!-- 社区指南 -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>社区指南</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>分享烹饪经验</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>提出烹饪问题</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>讨论菜谱改进</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>展示您的成品</li>
+                </ul>
+                <hr>
+                <p class="small text-muted mb-0">请保持友善、尊重他人，共同营造良好的社区氛围</p>
+            </div>
+        </div>
+        
+        <!-- 热门标签 -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-tags me-2"></i>热门标签</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">烹饪技巧</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">食材替代</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">调味秘诀</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">厨具推荐</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">家常菜</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">健康饮食</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">节日美食</a>
+                    <a href="#" class="badge bg-light text-dark text-decoration-none p-2">创新菜谱</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .community-banner {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .avatar-circle-sm {
+        width: 30px;
+        height: 30px;
+        background-color: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .initials-sm {
+        font-size: 14px;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .post-title {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .post-title:hover {
+        color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

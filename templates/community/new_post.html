@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}发布新帖子 - 社区 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>发布新帖子</h5>
+                    <a href="{{ url_for('community.index') }}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-arrow-left me-1"></i>返回社区
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('community.new_post') }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">标题</label>
+                        <input type="text" class="form-control" id="title" name="title" required 
+                               placeholder="请输入帖子标题（简洁明了的标题更容易吸引读者）">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">内容</label>
+                        <textarea class="form-control" id="content" name="content" rows="10" required 
+                                  placeholder="在这里分享您的烹饪经验、技巧或疑问..."></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="recipe_id" class="form-label">关联菜谱（可选）</label>
+                        <select class="form-select" id="recipe_id" name="recipe_id">
+                            <option value="">-- 不关联菜谱 --</option>
+                            
+                            {% if favorite_recipes %}
+                            <optgroup label="我收藏的菜谱">
+                                {% for recipe in favorite_recipes %}
+                                <option value="{{ recipe.id }}">{{ recipe.name }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            {% endif %}
+                            
+                            <optgroup label="所有菜谱">
+                                {% for recipe in all_recipes %}
+                                <option value="{{ recipe.id }}">{{ recipe.name }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                        <div class="form-text">关联菜谱可以让其他用户更容易找到相关讨论</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('community.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>发布帖子
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 发帖指南 -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>发帖小贴士</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-2">提高帖子质量的建议</h6>
+                        <ul>
+                            <li>使用清晰明确的标题</li>
+                            <li>详细描述您的经验或问题</li>
+                            <li>如果是菜谱相关问题，请尽量关联菜谱</li>
+                            <li>添加适当的细节，如食材用量、烹饪时间等</li>
+                            <li>避免过于宽泛的问题</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-2">帖子类型示例</h6>
+                        <ul>
+                            <li>分享烹饪心得与技巧</li>
+                            <li>寻求特定菜谱的改进意见</li>
+                            <li>询问食材替代方案</li>
+                            <li>讨论厨具使用体验</li>
+                            <li>展示您的美食成品</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

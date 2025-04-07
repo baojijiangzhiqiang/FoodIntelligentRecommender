@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}个人中心 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 用户侧边栏 -->
+    <div class="col-lg-3">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>个人信息</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-circle mb-3">
+                    <span class="initials">{{ user.username[0] }}</span>
+                </div>
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <div class="small text-muted mb-3">
+                    注册于 {{ user.created_at.strftime('%Y-%m-%d') }}
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('users.edit_profile') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i>编辑资料
+                    </a>
+                    <a href="{{ url_for('users.change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key me-1"></i>修改密码
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 口味偏好 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-heart me-2"></i>口味偏好</h5>
+            </div>
+            <div class="card-body">
+                {% if user.preferences %}
+                <ul class="list-group list-group-flush">
+                    {% for preference_id in user.preferences %}
+                    {% set category = namespace(found=false) %}
+                    {% for c in categories %}
+                    {% if c.id|int == preference_id|int %}
+                    {% set category.found = true %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ c.name }}
+                        <span class="badge bg-primary rounded-pill">爱好</span>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if not category.found %}
+                    <li class="list-group-item">
+                        偏好ID: {{ preference_id }}
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3">
+                    <p class="mb-0">您尚未设置口味偏好</p>
+                    <a href="{{ url_for('users.edit_profile') }}" class="btn btn-sm btn-primary mt-2">
+                        设置偏好
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主要内容区 -->
+    <div class="col-lg-9">
+        <!-- 个性化推荐 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-magic me-2"></i>为您推荐</h5>
+            </div>
+            <div class="card-body">
+                {% if recommended_recipes %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+                    {% for recipe in recommended_recipes %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm recipe-card">
+                            <div class="card-img-container">
+                                <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                                <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                                    <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fs-6">{{ recipe.name }}</h5>
+                                <div class="d-grid">
+                                    <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                                        查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <p>暂无个性化推荐</p>
+                    <p class="small text-muted">随着您的浏览和评分，我们将为您提供更准确的推荐</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 我的收藏 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-heart me-2"></i>我的收藏</h5>
+            </div>
+            <div class="card-body">
+                {% if favorite_recipes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">菜谱名称</th>
+                                <th scope="col">分类</th>
+                                <th scope="col">难度</th>
+                                <th scope="col">评分</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recipe in favorite_recipes %}
+                            <tr>
+                                <td>{{ recipe.name }}</td>
+                                <td>
+                                    {% for category in categories %}
+                                    {% if category.id == recipe.category %}
+                                    {{ category.name }}
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ recipe.difficulty }}</td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                                        查看
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <p>您还没有收藏任何菜谱</p>
+                    <a href="{{ url_for('recipes.index') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>浏览菜谱
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if favorite_recipes %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('users.favorites') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-list me-1"></i>查看全部收藏
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 我的评分 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-star me-2"></i>我的评分</h5>
+            </div>
+            <div class="card-body">
+                {% if rated_recipes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">菜谱名称</th>
+                                <th scope="col">我的评分</th>
+                                <th scope="col">平均评分</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rated_recipes %}
+                            <tr>
+                                <td>{{ item.recipe.name }}</td>
+                                <td>
+                                    {% for i in range(5) %}
+                                    <i class="fas fa-star {% if i < item.user_rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="fas fa-users me-1"></i>{{ "%.1f"|format(item.recipe.get_avg_rating()) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('recipes.detail', recipe_id=item.recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                                        查看
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <p>您还没有为任何菜谱评分</p>
+                    <a href="{{ url_for('recipes.index') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>浏览菜谱
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 我的帖子 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>我的帖子</h5>
+            </div>
+            <div class="card-body">
+                {% if user_posts %}
+                <div class="list-group">
+                    {% for post in user_posts %}
+                    <a href="{{ url_for('community.post_detail', post_id=post.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ post.title }}</h5>
+                            <small>{{ post.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1 text-truncate">{{ post.content }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                {{ post.comments|length }}条评论 · {{ post.likes }}个赞
+                            </small>
+                            {% if post.recipe_id %}
+                            <span class="badge bg-primary">已关联菜谱</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <p>您还没有发布过帖子</p>
+                    <a href="{{ url_for('community.new_post') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>发布新帖子
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if user_posts %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('community.new_post') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>发布新帖子
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background-color: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    .initials {
+        font-size: 42px;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .card-img-container {
+        height: 120px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-container img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

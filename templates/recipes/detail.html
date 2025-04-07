@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ recipe.name }} - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 菜谱详情 -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-img-top-container">
+                <img src="{{ recipe.image_url }}" class="card-img-top recipe-detail-img" alt="{{ recipe.name }}">
+                <div class="card-img-overlay d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                            ({{ recipe.ratings|length }}评价)
+                        </span>
+                    </div>
+                    <h1 class="text-white recipe-title">{{ recipe.name }}</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="badge bg-secondary me-2">
+                            <i class="fas fa-utensils me-1"></i>{{ category.name }}
+                        </span>
+                        <span class="badge bg-info me-2">
+                            <i class="fas fa-clock me-1"></i>准备: {{ recipe.prep_time }}分钟
+                        </span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-fire me-1"></i>烹饪: {{ recipe.cook_time }}分钟
+                        </span>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary">
+                            <i class="fas fa-eye me-1"></i>{{ recipe.views }}次浏览
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 收藏和评分 -->
+                {% if current_user.is_authenticated %}
+                <div class="d-flex justify-content-between mb-4">
+                    <form action="{{ url_for('recipes.toggle_favorite', recipe_id=recipe.id) }}" method="post">
+                        <button type="submit" class="btn btn-sm {% if is_favorite %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                            <i class="fas {% if is_favorite %}fa-heart{% else %}fa-heart{% endif %} me-1"></i>
+                            {% if is_favorite %}已收藏{% else %}收藏{% endif %}
+                        </button>
+                    </form>
+                    <div class="rating-container">
+                        <form id="ratingForm" action="{{ url_for('recipes.rate_recipe', recipe_id=recipe.id) }}" method="post" class="d-flex align-items-center">
+                            <span class="me-2">您的评分:</span>
+                            <div class="star-rating">
+                                {% for i in range(1, 6) %}
+                                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if user_rating == i %}checked{% endif %}>
+                                <label for="star{{ i }}" title="{{ i }}星"><i class="fas fa-star"></i></label>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary ms-2">评分</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <h4>菜谱描述</h4>
+                    <p>{{ recipe.description }}</p>
+                </div>
+
+                <!-- 材料 -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-shopping-basket me-2 text-success"></i>所需材料</h4>
+                    <ul class="list-group">
+                        {% for ingredient in recipe.ingredients %}
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            {{ ingredient }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- 步骤 -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-list-ol me-2 text-primary"></i>烹饪步骤</h4>
+                    <div class="list-group">
+                        {% for i in range(recipe.steps|length) %}
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="step-number">{{ i + 1 }}</div>
+                                <div class="ms-3">
+                                    {{ recipe.steps[i] }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 社区讨论 -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-comments me-2 text-info"></i>社区讨论</h4>
+                    {% if related_posts %}
+                    <div class="list-group">
+                        {% for post in related_posts %}
+                        <a href="{{ url_for('community.post_detail', post_id=post.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small>{{ post.comments|length }}条评论</small>
+                            </div>
+                            <p class="mb-1 text-truncate">{{ post.content }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <p>暂无相关讨论</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('community.new_post') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>发布新帖子
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 侧边栏 -->
+    <div class="col-lg-4">
+        <!-- 相似菜谱推荐 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>猜您喜欢</h5>
+            </div>
+            <div class="card-body">
+                {% if similar_recipes %}
+                <div class="row row-cols-1 g-3">
+                    {% for similar in similar_recipes %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    <img src="{{ similar.image_url }}" class="img-fluid rounded-start h-100" alt="{{ similar.name }}" style="object-fit: cover;">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title fs-6">{{ similar.name }}</h5>
+                                        <p class="card-text small mb-1">
+                                            <i class="fas fa-star text-warning"></i> {{ "%.1f"|format(similar.get_avg_rating()) }}
+                                        </p>
+                                        <a href="{{ url_for('recipes.detail', recipe_id=similar.id) }}" class="btn btn-sm btn-outline-primary mt-1">查看</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center">暂无相似菜谱推荐</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 分享 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>分享菜谱</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-around mb-3">
+                    <button class="btn btn-outline-primary btn-sm share-btn" data-platform="wechat">
+                        <i class="fab fa-weixin fa-lg"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm share-btn" data-platform="weibo">
+                        <i class="fab fa-weibo fa-lg"></i>
+                    </button>
+                    <button class="btn btn-outline-info btn-sm share-btn" data-platform="qq">
+                        <i class="fab fa-qq fa-lg"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm share-btn" data-platform="copylink" id="copyLink">
+                        <i class="fas fa-link fa-lg"></i>
+                    </button>
+                </div>
+                <div id="shareSuccess" class="alert alert-success d-none">
+                    链接已复制到剪贴板
+                </div>
+            </div>
+        </div>
+
+        <!-- 打印 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+                <button class="btn btn-outline-secondary w-100" id="printRecipe">
+                    <i class="fas fa-print me-2"></i>打印菜谱
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-img-top-container {
+        height: 350px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .recipe-detail-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .recipe-title {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: var(--bs-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        font-size: 1.5rem;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    
+    .star-rating input {
+        display: none;
+    }
+    
+    .star-rating label {
+        cursor: pointer;
+        color: #ccc;
+        margin: 0 2px;
+    }
+    
+    .star-rating :checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #f8d32a;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/recipe.js') }}"></script>
+{% endblock %}

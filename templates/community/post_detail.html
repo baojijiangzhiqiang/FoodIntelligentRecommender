@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - 社区 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- 帖子详情 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">帖子详情</h5>
+                    <a href="{{ url_for('community.index') }}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-arrow-left me-1"></i>返回社区
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <h3 class="mb-3">{{ post.title }}</h3>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-circle-sm me-2">
+                            <span class="initials-sm">{{ user.username[0] }}</span>
+                        </div>
+                        <span class="me-3">{{ user.username }}</span>
+                        <span class="text-muted small">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    <div>
+                        {% if recipe %}
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="badge bg-info">
+                            <i class="fas fa-utensils me-1"></i>查看相关菜谱: {{ recipe.name }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="post-content mb-4">
+                    {{ post.content|replace('\n', '<br>')|safe }}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <form action="{{ url_for('community.like_post', post_id=post.id) }}" method="post">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-heart me-1"></i>赞 ({{ post.likes }})
+                        </button>
+                    </form>
+                    
+                    <div class="share-buttons">
+                        <button class="btn btn-outline-primary btn-sm share-btn" data-platform="wechat">
+                            <i class="fab fa-weixin"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm share-btn" data-platform="weibo">
+                            <i class="fab fa-weibo"></i>
+                        </button>
+                        <button class="btn btn-outline-dark btn-sm share-btn" data-platform="copylink" id="copyPostLink">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论区 -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>评论 ({{ comments|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                <div class="comment-list">
+                    {% for comment_info in comments %}
+                    <div class="comment-item mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                        <div class="d-flex">
+                            <div class="avatar-circle-sm me-2">
+                                <span class="initials-sm">{{ comment_info.user.username[0] }}</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">{{ comment_info.user.username }}</h6>
+                                    <small class="text-muted">{{ comment_info.comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <p class="mb-0">{{ comment_info.comment.content }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="mb-0">暂无评论，来发表第一条评论吧</p>
+                </div>
+                {% endif %}
+                
+                <!-- 发表评论 -->
+                {% if current_user.is_authenticated %}
+                <div class="add-comment mt-4">
+                    <h6 class="mb-3">发表评论</h6>
+                    <form action="{{ url_for('community.add_comment', post_id=post.id) }}" method="post">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="content" name="content" rows="3" required placeholder="在这里输入您的评论..."></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>发布评论
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    请<a href="{{ url_for('auth.login') }}">登录</a>后参与评论
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- 作者信息 -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>作者信息</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-circle mb-3">
+                    <span class="initials">{{ user.username[0] }}</span>
+                </div>
+                <h5>{{ user.username }}</h5>
+                <p class="text-muted small">注册于 {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+        </div>
+        
+        <!-- 相关菜谱 -->
+        {% if recipe %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-utensils me-2"></i>相关菜谱</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <img src="{{ recipe.image_url }}" class="img-fluid rounded recipe-thumb" alt="{{ recipe.name }}">
+                </div>
+                <h5 class="card-title text-center">{{ recipe.name }}</h5>
+                <p class="small text-muted text-center">
+                    <i class="fas fa-star text-warning"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                    ({{ recipe.ratings|length }} 评价)
+                </p>
+                <div class="d-grid">
+                    <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i>查看菜谱
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 社区规则 -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>社区规则</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>尊重每一位社区成员</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>分享有价值的烹饪经验</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>提出有建设性的意见</li>
+                    <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>禁止发布广告内容</li>
+                    <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>禁止人身攻击或不友善言论</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background-color: var(--bs-success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    .initials {
+        font-size: 36px;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .avatar-circle-sm {
+        width: 30px;
+        height: 30px;
+        background-color: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .initials-sm {
+        font-size: 14px;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .recipe-thumb {
+        max-height: 200px;
+        object-fit: cover;
+    }
+    
+    .post-content {
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/community.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}管理菜谱 - 管理后台 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边导航 -->
+    <div class="col-lg-3 mb-4">
+        <div class="list-group shadow-sm admin-sidebar">
+            <div class="list-group-item bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>管理后台</h5>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i>控制面板
+            </a>
+            <a href="{{ url_for('admin.manage_recipes') }}" class="list-group-item list-group-item-action active">
+                <i class="fas fa-utensils me-2"></i>管理菜谱
+            </a>
+            <a href="{{ url_for('admin.manage_categories') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-tags me-2"></i>管理分类
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>管理用户
+            </a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-comments me-2"></i>管理帖子
+            </a>
+            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-arrow-left me-2"></i>返回网站
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-utensils me-2"></i>菜谱管理</h5>
+                    <a href="{{ url_for('admin.add_recipe') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i>添加菜谱
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <input type="text" id="recipeSearch" class="form-control" placeholder="搜索菜谱...">
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover" id="recipeTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">菜谱名称</th>
+                                <th scope="col">分类</th>
+                                <th scope="col">难度</th>
+                                <th scope="col">浏览量</th>
+                                <th scope="col">评分</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recipes %}
+                            <tr>
+                                <td>{{ item.recipe.id }}</td>
+                                <td>{{ item.recipe.name }}</td>
+                                <td>{{ item.category.name if item.category else '无分类' }}</td>
+                                <td>{{ item.recipe.difficulty }}</td>
+                                <td>{{ item.recipe.views }}</td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="fas fa-star"></i> {{ "%.1f"|format(item.recipe.get_avg_rating()) }}
+                                    </span>
+                                    <small class="text-muted">({{ item.recipe.ratings|length }})</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('recipes.detail', recipe_id=item.recipe.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin.edit_recipe', recipe_id=item.recipe.id) }}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                data-bs-toggle="modal" data-bs-target="#deleteRecipeModal{{ item.recipe.id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- 删除确认模态框 -->
+                                    <div class="modal fade" id="deleteRecipeModal{{ item.recipe.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title">确认删除</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>您确定要删除菜谱 <strong>{{ item.recipe.name }}</strong> 吗？</p>
+                                                    <p class="text-danger">此操作不可逆，删除后无法恢复。</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                    <form action="{{ url_for('admin.delete_recipe', recipe_id=item.recipe.id) }}" method="post">
+                                                        <button type="submit" class="btn btn-danger">确认删除</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if not recipes %}
+                <div class="text-center py-4">
+                    <p class="mb-0 text-muted">暂无菜谱</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('admin.add_recipe') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>添加新菜谱
+                </a>
+            </div>
+        </div>
+        
+        <!-- 分类概览 -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>分类概览</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category in categories %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title d-flex justify-content-between align-items-center">
+                                    {{ category.name }}
+                                    <span class="badge bg-primary">{{ recipes|selectattr('category.id', 'equalto', category.id)|list|length }} 个菜谱</span>
+                                </h6>
+                                <p class="card-text small text-muted">{{ category.description }}</p>
+                                <a href="{{ url_for('recipes.category', category_id=category.id) }}" class="btn btn-sm btn-outline-primary">
+                                    查看菜谱
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-success">
+                    <i class="fas fa-tags me-1"></i>管理分类
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 简单的客户端菜谱搜索功能
+    document.getElementById('recipeSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const table = document.getElementById('recipeTable');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const name = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+            const category = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+            
+            if (name.includes(searchValue) || category.includes(searchValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar .list-group-item-action.active {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

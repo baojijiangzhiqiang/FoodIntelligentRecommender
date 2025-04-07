@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<!-- 头部横幅 -->
+<div class="p-5 mb-4 bg-body-tertiary rounded-3 text-center position-relative hero-banner">
+    <div class="container py-5">
+        <h1 class="display-5 fw-bold">探索美食的奇妙世界</h1>
+        <p class="fs-4">发现、收藏、分享您喜爱的菜谱，让烹饪变得更加简单有趣</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+            <a href="{{ url_for('recipes.index') }}" class="btn btn-primary btn-lg px-4 gap-3">
+                <i class="fas fa-search"></i> 浏览菜谱
+            </a>
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-user-plus"></i> 加入我们
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 搜索区 -->
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">搜索美食</h5>
+                <form action="{{ url_for('recipes.index') }}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="输入关键词查找菜谱...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 为您推荐 -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-thumbs-up text-primary"></i> 为您推荐</h2>
+        <a href="{{ url_for('recipes.index') }}" class="btn btn-sm btn-outline-primary">查看更多</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for recipe in recommended %}
+        <div class="col">
+            <div class="card h-100 shadow-sm recipe-card">
+                <div class="card-img-container">
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                    <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                        <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.name }}</h5>
+                    <p class="card-text small text-truncate">{{ recipe.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="fas fa-clock"></i> {{ recipe.prep_time + recipe.cook_time }}分钟
+                        </div>
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- 热门菜谱 -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-fire text-danger"></i> 热门菜谱</h2>
+        <a href="{{ url_for('recipes.index') }}" class="btn btn-sm btn-outline-danger">查看更多</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for recipe in popular %}
+        <div class="col">
+            <div class="card h-100 shadow-sm recipe-card">
+                <div class="card-img-container">
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                    <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                        <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                        <span class="badge bg-info">
+                            <i class="fas fa-eye"></i> {{ recipe.views }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.name }}</h5>
+                    <p class="card-text small text-truncate">{{ recipe.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                            ({{ recipe.ratings|length }})
+                        </div>
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- 最新上线 -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-clock text-success"></i> 最新上线</h2>
+        <a href="{{ url_for('recipes.index') }}" class="btn btn-sm btn-outline-success">查看更多</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for recipe in latest %}
+        <div class="col">
+            <div class="card h-100 shadow-sm recipe-card">
+                <div class="card-img-container">
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                    <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                        <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                        <span class="badge bg-success">
+                            <i class="fas fa-calendar"></i> 新上线
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.name }}</h5>
+                    <p class="card-text small text-truncate">{{ recipe.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="fas fa-clock"></i> {{ recipe.prep_time + recipe.cook_time }}分钟
+                        </div>
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-outline-primary">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- 特色部分 -->
+<section class="py-5 bg-body-tertiary rounded-3 px-4 mb-5">
+    <h2 class="text-center mb-4">我们的特色</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+        <div class="col">
+            <div class="p-3">
+                <div class="feature-icon bg-primary bg-gradient p-3 rounded-circle mb-3 d-inline-flex">
+                    <i class="fas fa-lightbulb text-white fa-2x"></i>
+                </div>
+                <h4>个性化推荐</h4>
+                <p>基于您的口味偏好和浏览历史，智能推荐您可能喜欢的菜谱</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="p-3">
+                <div class="feature-icon bg-success bg-gradient p-3 rounded-circle mb-3 d-inline-flex">
+                    <i class="fas fa-users text-white fa-2x"></i>
+                </div>
+                <h4>社区互动</h4>
+                <p>分享您的烹饪经验，获取灵感，与其他美食爱好者交流</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="p-3">
+                <div class="feature-icon bg-warning bg-gradient p-3 rounded-circle mb-3 d-inline-flex">
+                    <i class="fas fa-bookmark text-white fa-2x"></i>
+                </div>
+                <h4>收藏与管理</h4>
+                <p>收藏您喜爱的菜谱，方便日后查找和烹饪</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 社区动态 -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-comment-dots text-info"></i> 美食社区</h2>
+        <a href="{{ url_for('community.index') }}" class="btn btn-sm btn-outline-info">加入讨论</a>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-center mb-4">
+                <a href="{{ url_for('community.new_post') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 发布新帖子
+                </a>
+            </div>
+            
+            <div class="text-center mb-3">
+                <p>分享您的烹饪经验、技巧和问题，与美食爱好者一起探讨！</p>
+            </div>
+            
+            <div class="d-grid gap-2 col-md-8 mx-auto">
+                <a href="{{ url_for('community.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-comments"></i> 查看社区讨论
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-banner {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1495195134817-aeb325a55b65?auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+    }
+    
+    .card-img-container {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-container img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}

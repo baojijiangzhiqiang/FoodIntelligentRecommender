@@ -1,0 +1,192 @@
+/**
+ * 美食智能管理系统 - 管理后台样式
+ */
+
+/* 管理侧边栏 */
+.admin-sidebar {
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+}
+
+.admin-sidebar .list-group-item-action.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* 管理仪表盘卡片 */
+.dashboard-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 数据统计图表容器 */
+.chart-container {
+    width: 100%;
+    height: 300px;
+    position: relative;
+}
+
+/* 带图标的表单控件 */
+.icon-input-group {
+    position: relative;
+}
+
+.icon-input-group .form-control {
+    padding-left: 40px;
+}
+
+.icon-input-group .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    z-index: 10;
+}
+
+/* 管理表格样式 */
+.admin-table th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bs-primary);
+    color: white;
+    z-index: 1;
+}
+
+.admin-table .action-column {
+    width: 120px;
+    text-align: center;
+}
+
+/* 表格行悬停效果 */
+.admin-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+}
+
+/* 状态标志 */
+.status-badge {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.status-active {
+    background-color: var(--bs-success);
+}
+
+.status-inactive {
+    background-color: var(--bs-danger);
+}
+
+.status-pending {
+    background-color: var(--bs-warning);
+}
+
+/* 拖放区域（用于上传） */
+.drop-zone {
+    border: 2px dashed var(--bs-secondary);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.active {
+    border-color: var(--bs-primary);
+}
+
+.drop-zone-icon {
+    font-size: 2rem;
+    color: var(--bs-secondary);
+    margin-bottom: 1rem;
+}
+
+/* 可排序列表（用于调整顺序） */
+.sortable-list {
+    list-style: none;
+    padding: 0;
+}
+
+.sortable-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sortable-handle {
+    cursor: move;
+    padding-right: 0.5rem;
+}
+
+/* 富文本编辑器容器 */
+.rich-editor-container {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.rich-editor-toolbar {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+}
+
+.rich-editor-content {
+    min-height: 200px;
+    padding: 1rem;
+}
+
+/* 模态框加载动画 */
+.modal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* 深色主题特定样式调整 */
+[data-bs-theme=dark] .dashboard-card {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme=dark] .drop-zone {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme=dark] .rich-editor-toolbar {
+    background-color: var(--bs-dark);
+}
+
+[data-bs-theme=dark] .rich-editor-container {
+    border-color: rgba(255, 255, 255, 0.2);
+}

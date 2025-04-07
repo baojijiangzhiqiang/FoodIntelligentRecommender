@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- 分类头部 -->
+        <div class="card mb-4 bg-dark text-white category-header">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="mb-2">{{ category.name }}</h1>
+                        <p class="lead">{{ category.description }}</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <span class="badge bg-light text-dark fs-5">{{ recipes|length }} 个菜谱</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 菜谱列表 -->
+        {% if recipes %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            {% for recipe in recipes %}
+            <div class="col">
+                <div class="card h-100 shadow-sm recipe-card">
+                    <div class="card-img-container">
+                        <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                        <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                            <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ recipe.name }}</h5>
+                        <p class="card-text small text-truncate">{{ recipe.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="small text-muted">
+                                <i class="fas fa-clock"></i> {{ recipe.prep_time + recipe.cook_time }}分钟
+                                <span class="ms-2">
+                                    <i class="fas fa-eye"></i> {{ recipe.views }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-info-circle me-1"></i>查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center p-5">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>此分类暂无菜谱</h4>
+            <p>稍后会有更多美食添加到该分类。</p>
+            <a href="{{ url_for('recipes.index') }}" class="btn btn-primary mt-2">
+                <i class="fas fa-utensils me-1"></i>浏览其他菜谱
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- 返回按钮 -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('recipes.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>返回菜谱列表
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('https://images.unsplash.com/photo-1542010589005-d1eacc3918f2?auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .card-img-container {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-container img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

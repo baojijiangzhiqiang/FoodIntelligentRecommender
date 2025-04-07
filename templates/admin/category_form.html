@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if category %}编辑分类{% else %}添加分类{% endif %} - 管理后台 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边导航 -->
+    <div class="col-lg-3 mb-4">
+        <div class="list-group shadow-sm admin-sidebar">
+            <div class="list-group-item bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>管理后台</h5>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i>控制面板
+            </a>
+            <a href="{{ url_for('admin.manage_recipes') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-utensils me-2"></i>管理菜谱
+            </a>
+            <a href="{{ url_for('admin.manage_categories') }}" class="list-group-item list-group-item-action active">
+                <i class="fas fa-tags me-2"></i>管理分类
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>管理用户
+            </a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-comments me-2"></i>管理帖子
+            </a>
+            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-arrow-left me-2"></i>返回网站
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-{% if category %}edit{% else %}plus{% endif %} me-2"></i>
+                        {% if category %}编辑分类{% else %}添加分类{% endif %}
+                    </h5>
+                    <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-arrow-left me-1"></i>返回分类列表
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% if category %}{{ url_for('admin.edit_category', category_id=category.id) }}{% else %}{{ url_for('admin.add_category') }}{% endif %}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">分类名称 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               value="{{ category.name if category else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">分类描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ category.description if category else '' }}</textarea>
+                        <div class="form-text">简短描述此分类的特点，帮助用户了解此类菜谱的特色</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>保存分类
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 分类管理指南 -->
+        {% if not category %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>分类管理指南</h5>
+            </div>
+            <div class="card-body">
+                <h6>如何创建有效的菜谱分类:</h6>
+                <ul>
+                    <li>使用清晰、具体的名称，如"川菜"、"早餐"、"素食"等</li>
+                    <li>添加详细描述，帮助用户理解此分类包含的菜谱类型</li>
+                    <li>考虑使用常见的分类方式，如地域菜系、用餐场合、制作方法等</li>
+                    <li>避免创建过于宽泛或过于狭窄的分类</li>
+                    <li>确保分类之间有明确的区分，避免混淆</li>
+                </ul>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>注意:</strong> 删除已有菜谱的分类会导致这些菜谱失去分类信息。请先将菜谱转移到其他分类再删除。
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar .list-group-item-action.active {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

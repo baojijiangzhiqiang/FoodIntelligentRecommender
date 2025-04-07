@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}管理社区帖子 - 管理后台 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边导航 -->
+    <div class="col-lg-3 mb-4">
+        <div class="list-group shadow-sm admin-sidebar">
+            <div class="list-group-item bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>管理后台</h5>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i>控制面板
+            </a>
+            <a href="{{ url_for('admin.manage_recipes') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-utensils me-2"></i>管理菜谱
+            </a>
+            <a href="{{ url_for('admin.manage_categories') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-tags me-2"></i>管理分类
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>管理用户
+            </a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="list-group-item list-group-item-action active">
+                <i class="fas fa-comments me-2"></i>管理帖子
+            </a>
+            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-arrow-left me-2"></i>返回网站
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>帖子管理</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <input type="text" id="postSearch" class="form-control" placeholder="搜索帖子...">
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover" id="postTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">标题</th>
+                                <th scope="col">作者</th>
+                                <th scope="col">发布时间</th>
+                                <th scope="col">评论数</th>
+                                <th scope="col">点赞数</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post_info in posts %}
+                            <tr>
+                                <td>{{ post_info.post.id }}</td>
+                                <td>{{ post_info.post.title }}</td>
+                                <td>{{ post_info.user.username }}</td>
+                                <td>{{ post_info.post.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ post_info.comments_count }}</td>
+                                <td>{{ post_info.post.likes }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('community.post_detail', post_id=post_info.post.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                data-bs-toggle="modal" data-bs-target="#deletePostModal{{ post_info.post.id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- 删除确认模态框 -->
+                                    <div class="modal fade" id="deletePostModal{{ post_info.post.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title">确认删除</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>您确定要删除帖子 <strong>{{ post_info.post.title }}</strong> 吗？</p>
+                                                    <p class="text-danger">此操作不可逆，删除后将无法恢复，包括帖子下的所有评论。</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                    <form action="{{ url_for('admin.delete_post', post_id=post_info.post.id) }}" method="post">
+                                                        <button type="submit" class="btn btn-danger">确认删除</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if not posts %}
+                <div class="text-center py-4">
+                    <p class="mb-0 text-muted">暂无帖子数据</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    提示：删除帖子将同时删除该帖子下的所有评论，请谨慎操作
+                </div>
+            </div>
+        </div>
+        
+        <!-- 社区管理指南 -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>社区管理指南</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>内容审核标准</h6>
+                        <ul>
+                            <li>确保内容与美食、烹饪相关</li>
+                            <li>禁止发布商业广告和垃圾内容</li>
+                            <li>禁止发布侵犯他人知识产权的内容</li>
+                            <li>禁止包含政治敏感、色情、暴力等不当内容</li>
+                            <li>鼓励用户发布原创、有价值的内容</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>处理问题帖子的步骤</h6>
+                        <ol>
+                            <li>先查看帖子内容和评论，确认问题</li>
+                            <li>对于轻微问题，可以联系用户进行修改</li>
+                            <li>对于严重违规内容，应立即删除</li>
+                            <li>记录处理过程，以备后续参考</li>
+                            <li>定期检查社区热门内容，主动发现问题</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 帖子搜索功能
+    document.getElementById('postSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const table = document.getElementById('postTable');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const title = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+            const author = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+            
+            if (title.includes(searchValue) || author.includes(searchValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar .list-group-item-action.active {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

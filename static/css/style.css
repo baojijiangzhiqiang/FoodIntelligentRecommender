@@ -1,0 +1,245 @@
+/**
+ * 美食智能管理系统 - 主样式表
+ * 注: 我们使用Bootstrap作为主要样式框架，这里只添加定制样式
+ */
+
+/* 通用样式 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* 卡片悬停效果 */
+.recipe-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.recipe-card .card-img-container {
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.recipe-card .card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.recipe-card:hover .card-img-container img {
+    transform: scale(1.05);
+}
+
+/* 英雄区样式 */
+.hero-banner {
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+/* 菜谱详情页 */
+.recipe-detail-img {
+    max-height: 400px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.recipe-title {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    background-color: var(--bs-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* 用户头像 */
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    background-color: var(--bs-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.initials {
+    font-size: 42px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.avatar-circle-sm {
+    width: 30px;
+    height: 30px;
+    background-color: var(--bs-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.initials-sm {
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* 星级评分系统 */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 1.5rem;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    color: #ccc;
+    margin: 0 2px;
+}
+
+.star-rating :checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #f8d32a;
+}
+
+/* 特色图标 */
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* 社区页面样式 */
+.community-banner {
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.post-title {
+    text-decoration: none;
+    color: inherit;
+}
+
+.post-title:hover {
+    color: var(--bs-primary);
+}
+
+/* 加载动画 */
+.loading-spinner {
+    padding: 20px;
+}
+
+/* 打印样式 */
+@media print {
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .print-hide {
+        display: none !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header, .card-footer {
+        background-color: white !important;
+        color: black !important;
+        border: none !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important;
+        break-after: avoid;
+    }
+    
+    /* 确保材料和步骤不会被分页 */
+    .list-group-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-banner h1 {
+        font-size: 2rem;
+    }
+    
+    .recipe-card .card-img-container {
+        height: 150px;
+    }
+    
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .initials {
+        font-size: 32px;
+    }
+    
+    .star-rating {
+        font-size: 1.2rem;
+    }
+}
+
+/* 深色主题特定样式调整 */
+[data-bs-theme=dark] .recipe-card {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme=dark] .card-img-overlay {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+}
+
+[data-bs-theme=dark] .feature-icon {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}

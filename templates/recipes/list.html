@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}菜谱列表 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边栏过滤器 -->
+    <div class="col-lg-3">
+        <div class="card mb-4 sticky-top" style="top: 20px; z-index: 999;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-filter me-2"></i>筛选菜谱</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('recipes.index') }}" method="get">
+                    <div class="mb-3">
+                        <label for="search" class="form-label">关键词搜索</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ search }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">菜系分类</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">全部分类</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">难度等级</label>
+                        <select class="form-select" id="difficulty" name="difficulty">
+                            <option value="">全部难度</option>
+                            <option value="简单" {% if difficulty == '简单' %}selected{% endif %}>简单</option>
+                            <option value="中等" {% if difficulty == '中等' %}selected{% endif %}>中等</option>
+                            <option value="困难" {% if difficulty == '困难' %}selected{% endif %}>困难</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>搜索
+                        </button>
+                    </div>
+                </form>
+                
+                {% if search or category_id or difficulty %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('recipes.index') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>清除筛选
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 菜系快速导航 -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>菜系导航</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for category in categories %}
+                    <a href="{{ url_for('recipes.category', category_id=category.id) }}" 
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ category.name }}
+                        <span class="badge bg-primary rounded-pill">
+                            {{ category.id }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 菜谱列表 -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                {% if search %}
+                搜索: "{{ search }}"
+                {% elif category_id %}
+                {{ categories|selectattr('id', 'equalto', category_id)|map(attribute='name')|first }} 菜谱
+                {% elif difficulty %}
+                {{ difficulty }}难度菜谱
+                {% else %}
+                所有菜谱
+                {% endif %}
+            </h2>
+            <span class="badge bg-primary">{{ recipes|length }} 个结果</span>
+        </div>
+
+        {% if recipes %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            {% for recipe in recipes %}
+            <div class="col">
+                <div class="card h-100 shadow-sm recipe-card">
+                    <div class="card-img-container">
+                        <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.name }}">
+                        <div class="card-img-overlay d-flex align-items-start justify-content-between">
+                            <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star"></i> {{ "%.1f"|format(recipe.get_avg_rating()) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ recipe.name }}</h5>
+                        <p class="card-text small text-truncate">{{ recipe.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="small text-muted">
+                                <i class="fas fa-clock"></i> {{ recipe.prep_time + recipe.cook_time }}分钟
+                                <span class="ms-2">
+                                    <i class="fas fa-eye"></i> {{ recipe.views }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('recipes.detail', recipe_id=recipe.id) }}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-info-circle me-1"></i>查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center p-5">
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <h4>未找到符合条件的菜谱</h4>
+            <p>请尝试调整搜索条件或查看其他分类。</p>
+            <a href="{{ url_for('recipes.index') }}" class="btn btn-primary mt-2">
+                <i class="fas fa-undo me-1"></i>查看所有菜谱
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-img-container {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-container img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

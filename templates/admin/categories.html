@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}管理分类 - 管理后台 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边导航 -->
+    <div class="col-lg-3 mb-4">
+        <div class="list-group shadow-sm admin-sidebar">
+            <div class="list-group-item bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>管理后台</h5>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i>控制面板
+            </a>
+            <a href="{{ url_for('admin.manage_recipes') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-utensils me-2"></i>管理菜谱
+            </a>
+            <a href="{{ url_for('admin.manage_categories') }}" class="list-group-item list-group-item-action active">
+                <i class="fas fa-tags me-2"></i>管理分类
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>管理用户
+            </a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-comments me-2"></i>管理帖子
+            </a>
+            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-arrow-left me-2"></i>返回网站
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>分类管理</h5>
+                    <a href="{{ url_for('admin.add_category') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i>添加分类
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">分类名称</th>
+                                <th scope="col">描述</th>
+                                <th scope="col">菜谱数量</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category_info in categories %}
+                            <tr>
+                                <td>{{ category_info.category.id }}</td>
+                                <td>{{ category_info.category.name }}</td>
+                                <td>{{ category_info.category.description }}</td>
+                                <td>{{ category_info.recipe_count }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('recipes.category', category_id=category_info.category.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin.edit_category', category_id=category_info.category.id) }}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                data-bs-toggle="modal" data-bs-target="#deleteCategoryModal{{ category_info.category.id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- 删除确认模态框 -->
+                                    <div class="modal fade" id="deleteCategoryModal{{ category_info.category.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title">确认删除</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>您确定要删除分类 <strong>{{ category_info.category.name }}</strong> 吗？</p>
+                                                    {% if category_info.recipe_count > 0 %}
+                                                    <div class="alert alert-warning">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                        此分类下有 {{ category_info.recipe_count }} 个菜谱，无法删除。
+                                                        请先将菜谱移至其他分类。
+                                                    </div>
+                                                    {% else %}
+                                                    <p class="text-danger">此操作不可逆，删除后无法恢复。</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                    <form action="{{ url_for('admin.delete_category', category_id=category_info.category.id) }}" method="post">
+                                                        <button type="submit" class="btn btn-danger" {% if category_info.recipe_count > 0 %}disabled{% endif %}>
+                                                            确认删除
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if not categories %}
+                <div class="text-center py-4">
+                    <p class="mb-0 text-muted">暂无分类数据</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>添加新分类
+                </a>
+            </div>
+        </div>
+        
+        <!-- 分类统计图表 -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>分类统计</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <canvas id="categoryPieChart" height="200"></canvas>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">分类分布</h6>
+                                <ul class="list-group list-group-flush">
+                                    {% for category_info in categories|sort(attribute='recipe_count', reverse=true)[:5] %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ category_info.category.name }}
+                                        <span class="badge bg-primary rounded-pill">{{ category_info.recipe_count }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 准备分类统计图表
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('categoryPieChart').getContext('2d');
+        
+        // 提取分类数据
+        const categories = [
+            {% for category_info in categories %}
+                "{{ category_info.category.name }}",
+            {% endfor %}
+        ];
+        
+        const recipeCounts = [
+            {% for category_info in categories %}
+                {{ category_info.recipe_count }},
+            {% endfor %}
+        ];
+        
+        // 生成随机颜色
+        const colors = generateColors(categories.length);
+        
+        // 创建饼图
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: recipeCounts,
+                    backgroundColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: '各分类菜谱数量分布'
+                    }
+                }
+            }
+        });
+    });
+    
+    // 生成随机颜色
+    function generateColors(count) {
+        const colors = [];
+        const baseColors = [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(40, 159, 64, 0.7)',
+            'rgba(210, 105, 30, 0.7)'
+        ];
+        
+        for (let i = 0; i < count; i++) {
+            if (i < baseColors.length) {
+                colors.push(baseColors[i]);
+            } else {
+                // 如果预定义颜色不够，生成随机颜色
+                const r = Math.floor(Math.random() * 255);
+                const g = Math.floor(Math.random() * 255);
+                const b = Math.floor(Math.random() * 255);
+                colors.push(`rgba(${r}, ${g}, ${b}, 0.7)`);
+            }
+        }
+        
+        return colors;
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar .list-group-item-action.active {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

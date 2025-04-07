@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if recipe %}编辑菜谱{% else %}添加菜谱{% endif %} - 管理后台 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 侧边导航 -->
+    <div class="col-lg-3 mb-4">
+        <div class="list-group shadow-sm admin-sidebar">
+            <div class="list-group-item bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>管理后台</h5>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i>控制面板
+            </a>
+            <a href="{{ url_for('admin.manage_recipes') }}" class="list-group-item list-group-item-action active">
+                <i class="fas fa-utensils me-2"></i>管理菜谱
+            </a>
+            <a href="{{ url_for('admin.manage_categories') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-tags me-2"></i>管理分类
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>管理用户
+            </a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-comments me-2"></i>管理帖子
+            </a>
+            <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-arrow-left me-2"></i>返回网站
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-{% if recipe %}edit{% else %}plus{% endif %} me-2"></i>
+                        {% if recipe %}编辑菜谱{% else %}添加菜谱{% endif %}
+                    </h5>
+                    <a href="{{ url_for('admin.manage_recipes') }}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-arrow-left me-1"></i>返回菜谱列表
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% if recipe %}{{ url_for('admin.edit_recipe', recipe_id=recipe.id) }}{% else %}{{ url_for('admin.add_recipe') }}{% endif %}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">菜谱名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required 
+                                   value="{{ recipe.name if recipe else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">分类 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">-- 选择分类 --</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if recipe and recipe.category == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">描述 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required>{{ recipe.description if recipe else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="difficulty" class="form-label">难度</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="简单" {% if recipe and recipe.difficulty == '简单' %}selected{% endif %}>简单</option>
+                                <option value="中等" {% if recipe and recipe.difficulty == '中等' %}selected{% endif %}>中等</option>
+                                <option value="困难" {% if recipe and recipe.difficulty == '困难' %}selected{% endif %}>困难</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="prep_time" class="form-label">准备时间（分钟）</label>
+                            <input type="number" class="form-control" id="prep_time" name="prep_time" min="0" 
+                                   value="{{ recipe.prep_time if recipe else '15' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cook_time" class="form-label">烹饪时间（分钟）</label>
+                            <input type="number" class="form-control" id="cook_time" name="cook_time" min="0" 
+                                   value="{{ recipe.cook_time if recipe else '30' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ingredients" class="form-label">食材 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="ingredients" name="ingredients" rows="5" required 
+                                  placeholder="每行一个食材，如: 面粉 100g">{{ ingredients if ingredients else '' }}</textarea>
+                        <div class="form-text">每行输入一个食材，如"鸡蛋 2个"、"大米 200g"</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="steps" class="form-label">步骤 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="steps" name="steps" rows="7" required 
+                                  placeholder="每行一个步骤，如: 1. 将鸡蛋打散">{{ steps if steps else '' }}</textarea>
+                        <div class="form-text">每行输入一个步骤，无需添加序号，系统会自动编号</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">图片URL</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ recipe.image_url if recipe else '' }}"
+                               placeholder="https://example.com/image.jpg">
+                        <div class="form-text">请输入图片完整URL，建议使用1200×800像素以上的高清图片</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">图片预览</label>
+                        <div class="text-center p-3 border rounded">
+                            <img id="imagePreview" src="{{ recipe.image_url if recipe and recipe.image_url else 'https://placehold.co/600x400?text=暂无图片' }}" 
+                                 class="img-fluid" style="max-height: 300px;" alt="图片预览">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.manage_recipes') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>保存菜谱
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 图片URL预览功能
+    document.getElementById('image_url').addEventListener('input', function() {
+        const imagePreview = document.getElementById('imagePreview');
+        const imageUrl = this.value.trim();
+        
+        if (imageUrl) {
+            imagePreview.src = imageUrl;
+            imagePreview.onerror = function() {
+                this.src = 'https://placehold.co/600x400?text=图片加载失败';
+            };
+        } else {
+            imagePreview.src = 'https://placehold.co/600x400?text=暂无图片';
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar .list-group-item-action.active {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

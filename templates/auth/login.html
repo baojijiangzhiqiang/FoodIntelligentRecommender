@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}登录 - 美食智能管理系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>用户登录</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">记住我</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">登录</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">还没有账号? <a href="{{ url_for('auth.register') }}">立即注册</a></p>
+            </div>
+        </div>
+        
+        <!-- 登录说明 -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">登录提示</h5>
+                <p>登录后您可以：</p>
+                <ul>
+                    <li>收藏喜爱的菜谱</li>
+                    <li>为菜谱评分</li>
+                    <li>参与社区讨论</li>
+                    <li>获得个性化菜谱推荐</li>
+                </ul>
+                <p class="mb-0">管理员账号：<code>admin</code> / 密码：<code>admin123</code></p>
+                <p>普通用户：<code>张三</code> / 密码：<code>password</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
