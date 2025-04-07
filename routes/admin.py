@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-from models import Recipe, User, Category, Post, Comment
+from models import Recipe, User, Category, Post, Comment, UserFavorite, RecipeRating
 from app import db
 import json
 
@@ -231,7 +231,11 @@ def delete_user(user_id):
         flash('不能删除自己的账户', 'danger')
         return redirect(url_for('admin.manage_users'))
     
-    # 从数据库中删除
+    # 首先清除用户收藏记录和评分记录（避免外键约束问题）
+    UserFavorite.query.filter_by(user_id=user.id).delete()
+    RecipeRating.query.filter_by(user_id=user.id).delete()
+    
+    # 从数据库中删除用户
     db.session.delete(user)
     db.session.commit()
     

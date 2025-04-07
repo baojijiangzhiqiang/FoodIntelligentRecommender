@@ -38,9 +38,9 @@ class User(UserMixin, db.Model):
     # 关系
     favorites = db.relationship('Recipe', secondary='user_favorites', 
                                backref=db.backref('favorited_by', lazy='dynamic'))
-    ratings = db.relationship('RecipeRating', backref='user', lazy='dynamic')
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    ratings = db.relationship('RecipeRating', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    posts = db.relationship('Post', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
