@@ -93,12 +93,16 @@ def add_recipe():
             categories = Category.query.all()
             return render_template('admin/recipe_form.html', categories=categories)
         
+        # 处理材料和步骤文本
+        ingredients_list = [line.strip() for line in ingredients_text.split('\n') if line.strip()]
+        steps_list = [line.strip() for line in steps_text.split('\n') if line.strip()]
+        
         # 创建新菜谱
         new_recipe = Recipe(
             name=name,
             description=description,
-            ingredients=json.dumps(ingredients_text.split('\n')),
-            steps=json.dumps(steps_text.split('\n')),
+            ingredients=json.dumps(ingredients_list),
+            steps=json.dumps(steps_list),
             category_id=category_id,
             image_url=image_url,
             difficulty=difficulty,
@@ -131,11 +135,13 @@ def edit_recipe(recipe_id):
         recipe.name = request.form.get('name')
         recipe.description = request.form.get('description')
         
-        # 将表单中的多行文本转换为JSON存储
+        # 处理材料和步骤文本，确保只保留非空行并去除前后空白
         ingredients_text = request.form.get('ingredients')
         steps_text = request.form.get('steps')
-        recipe.ingredients = json.dumps(ingredients_text.split('\n'))
-        recipe.steps = json.dumps(steps_text.split('\n'))
+        ingredients_list = [line.strip() for line in ingredients_text.split('\n') if line.strip()]
+        steps_list = [line.strip() for line in steps_text.split('\n') if line.strip()]
+        recipe.ingredients = json.dumps(ingredients_list)
+        recipe.steps = json.dumps(steps_list)
         
         recipe.category_id = int(request.form.get('category'))
         recipe.image_url = request.form.get('image_url')

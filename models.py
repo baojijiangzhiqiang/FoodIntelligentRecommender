@@ -76,7 +76,7 @@ class Recipe(db.Model):
     ingredients = db.Column(db.Text, nullable=False)  # 存储为JSON
     steps = db.Column(db.Text, nullable=False)  # 存储为JSON
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    image_url = db.Column(db.String(255))
+    image_url = db.Column(db.Text)
     difficulty = db.Column(db.String(20))
     prep_time = db.Column(db.Integer)  # 单位：分钟
     cook_time = db.Column(db.Integer)  # 单位：分钟

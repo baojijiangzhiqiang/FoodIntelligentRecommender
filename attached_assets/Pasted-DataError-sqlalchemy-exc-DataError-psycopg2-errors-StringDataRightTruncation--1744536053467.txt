@@ -1,0 +1,122 @@
+DataError
+sqlalchemy.exc.DataError: (psycopg2.errors.StringDataRightTruncation) 错误:  对于可变字符类型来说，值太长了(255)
+
+[SQL: INSERT INTO recipe (name, description, ingredients, steps, category_id, image_url, difficulty, prep_time, cook_time, views, tags, created_at) VALUES (%(name)s, %(description)s, %(ingredients)s, %(steps)s, %(category_id)s, %(image_url)s, %(difficulty)s, %(prep_time)s, %(cook_time)s, %(views)s, %(tags)s, %(created_at)s) RETURNING recipe.id]
+[parameters: {'name': '鱼香肉丝', 'description': '这道菜色泽红亮，口感咸、甜、酸、辣兼备，肉丝软嫩，木耳脆爽，是川菜中的经典代表之一，非常下饭', 'ingredients': '["\\u732a\\u91cc\\u810a\\u4e1d 150 \\u514b\\u3001\\r", "\\u9ed1\\u6728\\u8033\\u4e1d 50 \\u514b\\u3001\\r", "\\u80e1\\u841d\\u535c\\u4e1d 50 \\u514b\ ... (241 characters truncated) ... \\u3001\\r", "\\u751f\\u62bd\\u3001\\r", "\\u6599\\u9152\\u3001\\r", "\\u76d0\\u3001\\r", "\\u6dc0\\u7c89\\u3001\\r", "\\u98df\\u7528\\u6cb9\\u3002"]', 'steps': '["\\u5c06\\u732a\\u91cc\\u810a\\u4e1d\\u653e\\u5165\\u7897\\u4e2d\\uff0c\\u52a0\\u5165\\u5c11\\u8bb8\\u76d0\\u3001\\u6599\\u9152\\u548c\\u6dc0\\u7c89 ... (977 characters truncated) ... \\u3002\\r", "\\u6700\\u540e\\u5012\\u5165\\u9c7c\\u9999\\u6c41\\uff0c\\u7ffb\\u7092\\u81f3\\u6c64\\u6c41\\u6d53\\u7a20\\u5373\\u53ef\\u3002\\r", ""]', 'category_id': 1, 'image_url': 'https://ts1.tc.mm.bing.net/th/id/R-C.217b012dffc74d5a1cb96d6a6007a4d4?rik=frGMuKTXaQj97g&riu=http%3a%2f%2fi2.chuimg.com%2f9e8a181bab7e4c8a871dfe75522 ... (4 characters truncated) ... 4_1080w_1440h.jpg%3fimageView2%2f2%2fw%2f660%2finterlace%2f1%2fq%2f90&ehk=mY0H53HfXkqcts4%2b%2bex05fexAM%2b7O%2fF2nxBrXJvNJxA%3d&risl=&pid=ImgRaw&r=0', 'difficulty': '简单', 'prep_time': 15, 'cook_time': 20, 'views': 0, 'tags': '[]', 'created_at': datetime.datetime(2025, 4, 13, 17, 20, 1, 811683)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+
+Traceback (most recent call last)
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+self.dialect.do_execute(
+^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\default.py", line 945, in do_execute
+cursor.execute(statement, parameters)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The above exception was the direct cause of the following exception:
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1536, in __call__
+return self.wsgi_app(environ, start_response)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1514, in wsgi_app
+response = self.handle_exception(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1511, in wsgi_app
+response = self.full_dispatch_request()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 919, in full_dispatch_request
+rv = self.handle_user_exception(e)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 917, in full_dispatch_request
+rv = self.dispatch_request()
+     ^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 902, in dispatch_request
+return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\flask_login\utils.py", line 290, in decorated_view
+return current_app.ensure_sync(func)(*args, **kwargs)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "E:\FoodIntelligentRecommender (1)\FoodIntelligentRecommender\routes\admin.py", line 16, in wrapper
+return func(*args, **kwargs)
+       ^^^^^^^^^^^^^^^^^^^^^
+File "E:\FoodIntelligentRecommender (1)\FoodIntelligentRecommender\routes\admin.py", line 111, in add_recipe
+db.session.commit()
+^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\scoping.py", line 599, in commit
+return self._proxied.commit()
+       ^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 2032, in commit
+trans.commit(_to_root=True)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "<string>", line 2, in commit
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+ret_value = fn(self, *arg, **kw)
+            ^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+self._prepare_impl()
+^^^^^^^^^^^^^^^^^^^^
+File "<string>", line 2, in _prepare_impl
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+ret_value = fn(self, *arg, **kw)
+            ^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+self.session.flush()
+^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4353, in flush
+self._flush(objects)
+^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4488, in _flush
+with util.safe_reraise():
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+raise exc_value.with_traceback(exc_tb)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4449, in _flush
+flush_context.execute()
+^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+rec.execute(self)
+^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+util.preloaded.orm_persistence.save_obj(
+^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+_emit_insert_statements(
+^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+result = connection.execute(
+         
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+return meth(
+       
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\sql\elements.py", line 523, in _execute_on_connection
+return connection._execute_clauseelement(
+       
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+ret = self._execute_context(
+      
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+return self._exec_single_context(
+       
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+self._handle_dbapi_exception(
+^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+self.dialect.do_execute(
+^
+File "C:\Users\86182\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\default.py", line 945, in do_execute
+cursor.execute(statement, parameters)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DataError: (psycopg2.errors.StringDataRightTruncation) 错误: 对于可变字符类型来说，值太长了(255)
+
+[SQL: INSERT INTO recipe (name, description, ingredients, steps, category_id, image_url, difficulty, prep_time, cook_time, views, tags, created_at) VALUES (%(name)s, %(description)s, %(ingredients)s, %(steps)s, %(category_id)s, %(image_url)s, %(difficulty)s, %(prep_time)s, %(cook_time)s, %(views)s, %(tags)s, %(created_at)s) RETURNING recipe.id]
+[parameters: {'name': '鱼香肉丝', 'description': '这道菜色泽红亮，口感咸、甜、酸、辣兼备，肉丝软嫩，木耳脆爽，是川菜中的经典代表之一，非常下饭', 'ingredients': '["\\u732a\\u91cc\\u810a\\u4e1d 150 \\u514b\\u3001\\r", "\\u9ed1\\u6728\\u8033\\u4e1d 50 \\u514b\\u3001\\r", "\\u80e1\\u841d\\u535c\\u4e1d 50 \\u514b\ ... (241 characters truncated) ... \\u3001\\r", "\\u751f\\u62bd\\u3001\\r", "\\u6599\\u9152\\u3001\\r", "\\u76d0\\u3001\\r", "\\u6dc0\\u7c89\\u3001\\r", "\\u98df\\u7528\\u6cb9\\u3002"]', 'steps': '["\\u5c06\\u732a\\u91cc\\u810a\\u4e1d\\u653e\\u5165\\u7897\\u4e2d\\uff0c\\u52a0\\u5165\\u5c11\\u8bb8\\u76d0\\u3001\\u6599\\u9152\\u548c\\u6dc0\\u7c89 ... (977 characters truncated) ... \\u3002\\r", "\\u6700\\u540e\\u5012\\u5165\\u9c7c\\u9999\\u6c41\\uff0c\\u7ffb\\u7092\\u81f3\\u6c64\\u6c41\\u6d53\\u7a20\\u5373\\u53ef\\u3002\\r", ""]', 'category_id': 1, 'image_url': 'https://ts1.tc.mm.bing.net/th/id/R-C.217b012dffc74d5a1cb96d6a6007a4d4?rik=frGMuKTXaQj97g&riu=http%3a%2f%2fi2.chuimg.com%2f9e8a181bab7e4c8a871dfe75522 ... (4 characters truncated) ... 4_1080w_1440h.jpg%3fimageView2%2f2%2fw%2f660%2finterlace%2f1%2fq%2f90&ehk=mY0H53HfXkqcts4%2b%2bex05fexAM%2b7O%2fF2nxBrXJvNJxA%3d&risl=&pid=ImgRaw&r=0', 'difficulty': '简单', 'prep_time': 15, 'cook_time': 20, 'views': 0, 'tags': '[]', 'created_at': datetime.datetime(2025, 4, 13, 17, 20, 1, 811683)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+The debugger caught an exception in your WSGI application. You can now look at the traceback which led to the error.
+To switch between the interactive traceback and the plaintext one, you can click on the "Traceback" headline. From the text traceback you can also create a paste of it. For code execution mouse-over the frame you want to debug and click on the console icon on the right side.
+
+You can execute arbitrary Python code in the stack frames and there are some extra helpers available for introspection:
+
+dump() shows all variables in the frame
+dump(obj) dumps all that's known about the object
